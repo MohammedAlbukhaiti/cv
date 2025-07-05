@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<!-- The "lang" and "dir" attributes will be updated by JavaScript -->
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-lang-key="meta_title">محمد البخيتي - مهندس ومبتكر رقمي</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Changa:wght@600;800&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="preloader">
+        <div class="preloader-logo" data-lang-key="preloader_logo">محمد البخيتي<span>.</span></div>
+        <div class="preloader-status" id="preloader-status-text">INITIALIZING SYSTEMS...</div>
+    </div>
+
+    <canvas id="threeJsCanvas"></canvas>
+    
+    <svg id="data-stream-container" width="100%" height="100%">
+        <path id="data-stream-path"></path>
+    </svg>
+
+    <div class="content-wrapper">
+        <header class="site-header">
+            <div class="container">
+                <h1 class="site-title"><a href="#hero" data-lang-key="header_title">محمد البخيتي<span>.</span></a></h1>
+                <nav class="site-nav">
+                    <button class="nav-toggle" aria-label="Toggle navigation">
+                        <i class="fas fa-bars"></i>
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <ul class="nav-list">
+                        <li><a href="#hero" class="nav-link active" data-lang-key="nav_home">الرئيسية</a></li>
+                        <li><a href="#about" class="nav-link" data-lang-key="nav_about">عني</a></li>
+                        <li><a href="#skills" class="nav-link" data-lang-key="nav_skills">المهارات</a></li>
+                        <li><a href="#portfolio" class="nav-link" data-lang-key="nav_portfolio">المشاريع</a></li>
+                        <li><a href="#contact" class="nav-link" data-lang-key="nav_contact">اتصل بي</a></li>
+                    </ul>
+                </nav>
+                 <div class="header-controls">
+                    <button id="lang-switcher" class="lang-btn">EN</button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section id="hero" class="content-section">
+                <div class="container">
+                    <div class="hero-content">
+                        <p class="subtitle" data-lang-key="hero_subtitle">مهندس مساحة وطرق | مبتكر حلول هندسية رقمية</p>
+                        <h1 class="decode-text" data-text-ar="أبني جسوراً بين الهندسة والبرمجة" data-text-en="Building Bridges Between Engineering & Code"></h1>
+                        <p data-lang-key="hero_desc">أترجم البيانات المعقدة إلى بنى تحتية ذكية ومستدامة، وأصمم حلولاً لا تخدم الحاضر فحسب، بل تستشرف المستقبل.</p>
+                        <a href="#portfolio" class="btn" data-lang-key="hero_cta">استكشف أعمالي</a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="about" class="content-section">
+                <div class="container">
+                    <h2 class="section-title"><span data-lang-key="about_subtitle">Who I Am</span><span data-lang-key="about_title">نبذة عني</span></h2>
+                    <div class="about-content terran-card">
+                        <div class="about-text">
+                            <h3 data-lang-key="about_story_title">شغف بالدقة، ورؤية للمستقبل</h3>
+                            <p data-lang-key="about_p1">ولدت وفي داخلي فضول لفهم العالم من حولي، ليس فقط كصور، بل كبيانات دقيقة ونقاط إحداثية ترسم الواقع. هذا الفضول قادني بشكل طبيعي إلى عالم هندسة المساحة والطرق، حيث تعلمت لغة الأرض: لغة الدقة التي لا تقبل الخطأ.</p>
+                            <p class="highlight" data-lang-key="about_p2">لكن الشرارة الحقيقية لم تأتِ من قاعة دراسية، بل من شاشة سوداء لكتابة الأكواد. كهواية، بدأت أستكشف عالم البرمجة والذكاء الاصطناعي، وسرعان ما أدركت القوة الهائلة التي تكمن في الجمع بين هذين العالمين. هذا السؤال حول هوايتي إلى رؤية.</p>
+                            <p data-lang-key="about_p3">أنا اليوم مهندس حديث العهد في مسيرتي المهنية، ولكني أحمل رؤية خبير. أؤمن بأن المهندس القادم ليس من يستخدم البرامج فقط، بل من يصنعها. رؤيتي هي تسخير قوة الكود والذكاء الاصطناعي لإحداث ثورة في كفاءة المشاريع الهندسية.</p>
+                            <a href="CV.pdf" download="CV-Mohammed-Albukaiti.pdf" class="btn" style="margin-top: 20px;" data-lang-key="about_cv_btn">تحميل السيرة الذاتية</a>
+                        </div>
+                        <div class="about-image">
+                            <img src="https://i.ibb.co/C0f9j6k/A-professional-and-confident-portrait-of-a-male-engineer-from-the-Middle-East-in-his-30s-He-has.png" alt="صورة المهندس محمد البخيتي">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="skills" class="content-section">
+                <div class="container">
+                    <h2 class="section-title"><span data-lang-key="skills_subtitle">What I Do</span><span data-lang-key="skills_title">المهارات والكفاءات</span></h2>
+                    <div class="skills-layout">
+                        <div class="skills-list">
+                            <!-- Dynamically populated -->
+                        </div>
+                        <div class="skills-chart-container">
+                            <h3 data-lang-key="skills_chart_title">مخطط الكفاءات التفاعلي</h3>
+                            <canvas id="skillsRadarChart"></canvas>
+                            <div id="skill-description-box">
+                                <h4 data-lang-key="skills_desc_title">مرّر لاكتشاف المزيد</h4>
+                                <p data-lang-key="skills_desc_text">مرّر الفأرة فوق أي مهارة في المخطط أو القائمة لعرض تفاصيل عنها هنا.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="portfolio" class="content-section">
+                <div class="container">
+                    <h2 class="section-title"><span data-lang-key="portfolio_subtitle">My Work</span><span data-lang-key="portfolio_title">أبرز المشاريع</span></h2>
+                    <div class="portfolio-grid">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </section>
+            
+            <section id="contact" class="content-section">
+                <div class="container">
+                    <h2 class="section-title"><span data-lang-key="contact_subtitle">Let's Talk</span><span data-lang-key="contact_title">محطة الأفكار والتواصل</span></h2>
+                    <div id="gemini-station" class="terran-card">
+                        <h3 data-lang-key="gemini_title">استشر العقل الهندسي</h3>
+                        <p data-lang-key="gemini_desc">هل لديك فكرة مشروع؟ صفها هنا ودع الذكاء الاصطناعي يقدم لك تصوراً أولياً مبتكراً.</p>
+                        <div class="gemini-input-area">
+                            <input type="text" id="projectIdeaInput" placeholder="مثال: تصميم طريق مستدام في منطقة جبلية...">
+                            <button id="expandVisionBtn" class="btn" data-lang-key="gemini_btn">حلّل الفكرة</button>
+                        </div>
+                        <div class="gemini-results-area">
+                            <span id="gemini-response"></span><span id="gemini-cursor"></span>
+                        </div>
+                    </div>
+
+                    <div class="contact-grid" style="margin-top: 80px;">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="site-footer">
+            <div class="container">
+                <div class="social-links">
+                    <a href="https://linkedin.com/in/mbukaiti" aria-label="LinkedIn" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://twitter.com/mbukaiti" aria-label="Twitter" target="_blank"><i class="fab fa-twitter"></i></a>
+                    <a href="https://github.com/mbukaiti" aria-label="GitHub" target="_blank"><i class="fab fa-github"></i></a>
+                </div>
+                <p data-lang-key="footer_copyright">© 2024 محمد البخيتي. كل الحقوق محفوظة.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
