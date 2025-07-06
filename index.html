@@ -64,6 +64,7 @@
                 <div class="container">
                     <h2 class="section-title"><span data-lang-key="about_subtitle">Who I Am</span><span data-lang-key="about_title">نبذة عني</span></h2>
                     <div class="about-content terran-card">
+                         <div class="terran-card-glint"></div>
                         <div class="about-text">
                             <h3 data-lang-key="about_story_title">شغف بالدقة، ورؤية للمستقبل</h3>
                             <p data-lang-key="about_p1">ولدت وفي داخلي فضول لفهم العالم من حولي، ليس فقط كصور، بل كبيانات دقيقة ونقاط إحداثية ترسم الواقع. هذا الفضول قادني بشكل طبيعي إلى عالم هندسة المساحة والطرق، حيث تعلمت لغة الأرض: لغة الدقة التي لا تقبل الخطأ.</p>
@@ -85,7 +86,8 @@
                         <div class="skills-list">
                             <!-- Dynamically populated by script.js -->
                         </div>
-                        <div class="skills-chart-container">
+                        <div class="skills-chart-container terran-card">
+                             <div class="terran-card-glint"></div>
                             <h3 data-lang-key="skills_chart_title">مخطط الكفاءات التفاعلي</h3>
                             <canvas id="skillsRadarChart"></canvas>
                             <div id="skill-description-box">
@@ -110,15 +112,15 @@
                 <div class="container">
                     <h2 class="section-title"><span data-lang-key="contact_subtitle">Let's Talk</span><span data-lang-key="contact_title">محطة الأفكار والتواصل</span></h2>
                     <div id="gemini-station" class="terran-card">
-                        <h3 data-lang-key="gemini_title">استشر العقل الهندسي</h3>
-                        <p data-lang-key="gemini_desc">هل لديك فكرة مشروع؟ صفها هنا ودع الذكاء الاصطناعي يقدم لك تصوراً أولياً مبتكراً.</p>
+                         <div class="terran-card-glint"></div>
+                        <h3 data-lang-key="gemini_title">استشر عقلي الهندسي</h3>
+                        <p data-lang-key="gemini_desc">هذه محاكاة لتوأمي الرقمي. صف فكرة مشروعك، وسيقدم لك تصورًا أوليًا بناءً على خبرتي في الهندسة والبرمجة والذكاء الاصطناعي.</p>
                         <div class="gemini-input-area">
                             <input type="text" id="projectIdeaInput" placeholder="مثال: تصميم طريق مستدام في منطقة جبلية..." data-lang-key-placeholder="gemini_placeholder">
                             <button id="sendMessageBtn" class="btn" data-lang-key="gemini_send_btn">إرسال</button>
                         </div>
                         <div class="chat-bubbles-container" id="gemini-chat-container">
-                            <!-- Chat bubbles will be appended here -->
-                            <div class="chat-bubble ai-bubble" data-lang-key-initial-ai-message="gemini_initial_ai_message">مرحباً! أنا التوأم الرقمي للمهندس محمد البخيتي. كيف يمكنني مساعدتك في مشروعك الهندسي اليوم؟</div>
+                            <!-- Chat bubbles will be appended here by script.js -->
                         </div>
                     </div>
 
