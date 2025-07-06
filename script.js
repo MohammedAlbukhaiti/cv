@@ -1,286 +1,589 @@
-:root {
-    --primary-color: #00aeff;       
-    --secondary-color: #00d1ff;     
-    --accent-color: #00ffaa;        
-    --text-color: #e0e0e0;          
-    --text-color-muted: #a0a0a0;    
-    --deep-space-bg: #050816;
-    --dark-bg-overlay: rgba(16, 22, 47, 0.85);
-    --white: #fff;
-    --border-radius: 12px;
-    --font-main: 'Cairo', sans-serif;
-    --font-headings: 'Changa', 'Cairo', sans-serif; 
-    --transition-smooth: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
+document.addEventListener('DOMContentLoaded', () => {
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, MotionPathPlugin);
 
-/* --- Global & Base --- */
-*, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
-    font-family: var(--font-main);
-    line-height: 1.8; 
-    margin: 0;
-    color: var(--text-color);
-    background-color: var(--deep-space-bg);
-    overflow-x: hidden;
-}
-.container { width: 90%; max-width: 1200px; margin: 0 auto; position: relative; z-index: 2; }
-.content-wrapper { position: relative; z-index: 2; }
-.content-section { padding: 120px 0; position: relative; }
-h2.section-title { font-family: var(--font-headings); text-align: center; margin-bottom: 80px; font-size: 3em; text-transform: uppercase; letter-spacing: 1.5px; color: var(--white); position: relative; }
-h2.section-title span:first-of-type { display: block; font-size: 0.5em; font-family: var(--font-main); color: var(--text-color-muted); text-transform: none; margin-bottom: 10px; letter-spacing: 0.5px; }
-h2.section-title::after { 
-    content: ''; 
-    width: 0; /* Animate from 0 width */
-    height: 4px; 
-    background: var(--primary-color); 
-    position: absolute; 
-    bottom: -20px; 
-    left: 50%; /* Animate from center */
-    transform: translateX(-50%); 
-    border-radius: 2px;
-    transition: width 0.6s ease-out;
-}
-h2.section-title.in-view::after {
-    width: 100px; /* Animate to full width */
-}
-.btn { display: inline-block; padding: 14px 35px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.1em; transition: all 0.3s; border: 2px solid var(--primary-color); background: var(--primary-color); color: var(--deep-space-bg); box-shadow: 0 0 15px rgba(0, 174, 255, 0.4); }
-.btn:hover { transform: translateY(-5px) scale(1.05); background: var(--accent-color); border-color: var(--accent-color); box-shadow: 0 0 25px rgba(0, 255, 170, 0.6); }
+    let currentLang = 'ar';
+    const langSwitcher = document.getElementById('lang-switcher');
+    let skillsChart;
 
-/* --- Preloader, Canvas, Data Stream --- */
-#preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--deep-space-bg); z-index: 10000; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 20px; transition: opacity 0.8s ease-out; }
-.preloader-logo { font-family: var(--font-headings); font-size: 2em; color: var(--primary-color); opacity: 0; animation: fadeIn 1s 0.2s forwards; }
-.preloader-logo span { color: var(--accent-color); }
-.preloader-status { font-family: 'Courier New', monospace; color: var(--accent-color); opacity: 0; animation: fadeIn 1s 0.5s forwards; }
-@keyframes fadeIn { to { opacity: 1; } }
-#threeJsCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
-#data-stream-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: visible; }
-#data-stream-path { stroke-width: 3px; stroke: var(--primary-color); fill: none; stroke-dasharray: 1; stroke-dashoffset: 1; filter: drop-shadow(0 0 5px var(--primary-color)); }
-
-/* --- Header --- */
-.site-header { padding: 20px 0; position: fixed; width: 100%; top: 0; left: 0; z-index: 1000; transition: background-color 0.3s ease, padding 0.3s ease; }
-.site-header.scrolled { padding: 15px 0; background-color: rgba(5, 8, 22, 0.9); backdrop-filter: blur(10px); box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
-.site-header .container { display: flex; justify-content: space-between; align-items: center; }
-.site-title { margin: 0; font-size: 1.8em; font-weight: 800; letter-spacing: 1px; }
-.site-title a { color: var(--white); text-decoration: none; }
-.site-title span { color: var(--accent-color); }
-.site-nav { margin: 0 auto; }
-.site-nav .nav-list { list-style: none; margin: 0; padding: 0; display: flex; gap: 40px; }
-.site-nav .nav-link { color: var(--text-color); text-decoration: none; font-weight: 600; position: relative; transition: color 0.2s; }
-.site-nav .nav-link:hover, .site-nav .nav-link.active { color: var(--accent-color); }
-.site-nav .nav-link::after { content: ''; width: 0; height: 2px; background: var(--accent-color); position: absolute; bottom: -5px; right: 0; transition: width 0.3s; }
-html[dir="ltr"] .site-nav .nav-link::after { right: auto; left: 0; }
-.site-nav .nav-link:hover::after, .site-nav .nav-link.active::after { width: 100%; }
-.lang-btn { background: none; border: 1px solid var(--accent-color); color: var(--accent-color); padding: 5px 15px; border-radius: 5px; cursor: pointer; font-family: var(--font-headings); font-weight: 600; transition: all 0.3s; }
-.lang-btn:hover { background: var(--accent-color); color: var(--deep-space-bg); }
-.nav-toggle { display: none; background: none; border: none; color: white; font-size: 1.8em; cursor: pointer; }
-
-/* --- Hero Section --- */
-#hero { min-height: 100vh; display: flex; align-items: center; }
-.hero-content { max-width: 800px; text-align: right;}
-html[dir="ltr"] .hero-content { text-align: left; }
-.hero-content .subtitle { font-size: 1.2em; color: var(--primary-color); margin: 0; font-family: var(--font-headings); }
-.hero-content h1 { font-size: 4.5em; font-weight: 800; margin: 10px 0 20px 0; line-height: 1.2; }
-.decode-text span { opacity: 0; transform: translateY(-10px); display: inline-block; }
-.hero-content p { font-size: 1.1em; max-width: 600px; margin-bottom: 30px; }
-
-/* --- Terran Card (Glassmorphism) --- */
-.terran-card { background: linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(16, 22, 47, 0.7)); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--border-radius); padding: 30px; transition: transform 0.4s ease, box-shadow 0.4s ease; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.terran-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 25px var(--primary-color) inset; }
-
-/* --- About Section --- */
-#about .about-content { display: grid; grid-template-columns: 1.5fr 1fr; gap: 50px; align-items: center; padding: 40px; }
-#about .about-text .highlight { color: var(--accent-color); font-weight: 700; }
-#about .about-image img { width: 100%; border-radius: var(--border-radius); }
-
-/* --- Skills Section --- */
-#skills .skills-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: flex-start; }
-.skills-chart-container { position: sticky; top: 120px; padding: 30px; background: var(--dark-bg-overlay); border-radius: var(--border-radius); border: 1px solid rgba(255, 255, 255, 0.1); }
-#skill-description-box { margin-top: 20px; padding: 20px; background-color: var(--deep-space-bg); border-radius: 8px; border-left: 3px solid var(--accent-color); min-height: 100px; transition: all 0.3s; }
-html[dir="ltr"] #skill-description-box { border-left: none; border-right: 3px solid var(--accent-color); }
-#skill-description-box h4 { margin: 0 0 10px 0; color: var(--accent-color); font-size: 1.2em; }
-#skill-description-box p { margin: 0; color: var(--text-color-muted); }
-.skills-list .skill-item { margin-bottom: 20px; padding: 25px; cursor: pointer; display: flex; align-items: flex-start; gap: 20px; }
-.skills-list .skill-item-content { flex: 1; }
-.skills-list .skill-item h3 { margin: 0 0 5px 0; font-size: 1.3em; }
-.skills-list .skill-item .skill-level { font-size: 0.8em; color: var(--primary-color); font-weight: normal; }
-.skills-list .skill-item p { margin: 0 0 15px 0; color: var(--text-color-muted); font-size: 0.95em; line-height: 1.6; }
-.skills-list .skill-item .sub-skills { font-size: 0.9em; color: var(--text-color); }
-.skills-list .skill-item .sub-skills strong { color: var(--accent-color); }
-.skills-list .skill-item i { color: var(--primary-color); font-size: 2.5em; width: 40px; text-align: center; margin-top: 5px; }
-
-/* --- Portfolio Section --- */
-#portfolio .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 30px; }
-.portfolio-item .portfolio-image { height: 220px; border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
-.portfolio-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
-.portfolio-item:hover img { transform: scale(1.1); }
-.portfolio-item h3 { color: var(--accent-color); margin: 0 0 15px 0; font-size: 1.4em; }
-.portfolio-item p { margin: 0 0 10px 0; font-size: 0.95em; line-height: 1.7; }
-.portfolio-item p strong { color: var(--primary-color); }
-.portfolio-item .tags { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
-.portfolio-item .tag { background: rgba(0, 174, 255, 0.1); color: var(--primary-color); padding: 5px 10px; border-radius: 5px; font-size: 0.8em; font-weight: 600; }
-
-/* --- Gemini & Contact --- */
-#gemini-station { max-width: 800px; margin: 0 auto; padding: 40px; }
-.gemini-input-area { display: flex; gap: 15px; margin-top: 20px; }
-#projectIdeaInput { flex-grow: 1; background-color: var(--deep-space-bg); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 12px 15px; color: var(--text-color); font-family: var(--font-main); font-size: 1em; resize: none; }
-#projectIdeaInput:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 10px rgba(0, 255, 170, 0.5); }
-#sendMessageBtn { padding: 12px 20px; font-size: 1em; white-space: nowrap; }
-
-/* Chat Bubbles Styling */
-.chat-bubbles-container {
-    margin-top: 30px;
-    padding: 25px;
-    background-color: var(--deep-space-bg);
-    border-radius: var(--border-radius);
-    min-height: 250px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    overflow-y: auto;
-    max-height: 400px; /* Limit height for scrollability */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.chat-bubble {
-    padding: 12px 18px;
-    border-radius: 20px;
-    max-width: 80%;
-    line-height: 1.6;
-    word-wrap: break-word;
-    font-size: 0.95em;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    position: relative; /* For the potential triangle */
-}
-
-.user-bubble {
-    background-color: var(--primary-color);
-    color: var(--deep-space-bg);
-    align-self: flex-end; /* Align to right */
-    border-bottom-right-radius: 5px; /* Sharp corner for user bubble */
-}
-
-.ai-bubble {
-    background-color: var(--dark-bg-overlay);
-    color: var(--accent-color);
-    align-self: flex-start; /* Align to left */
-    border-bottom-left-radius: 5px; /* Sharp corner for AI bubble */
-}
-
-/* Cursor for AI typing effect */
-#gemini-cursor { 
-    display: inline-block; 
-    width: 10px; 
-    height: 1.2em; 
-    background: var(--accent-color); 
-    animation: blink 1s step-end infinite; 
-    vertical-align: middle; 
-}
-@keyframes blink { 50% { opacity: 0; } }
-
-#contact .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
-.contact-item a {
-    display: block; /* Make the entire card clickable */
-    text-align: center;
-    text-decoration: none;
-    color: var(--text-color); /* General text color for readability */
-    transition: color 0.3s, transform 0.3s, background 0.3s, border-color 0.3s;
-    padding: 20px;
-    border-radius: var(--border-radius);
-    background: var(--dark-bg-overlay); /* Card background */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    height: 100%; /* Ensure cards are same height if content varies */
-}
-.contact-item a:hover {
-    color: var(--white); /* Brighter text on hover */
-    transform: translateY(-5px);
-    background: rgba(0, 174, 255, 0.15); /* Lighter background on hover */
-    border-color: var(--primary-color);
-}
-.contact-item i { font-size: 2.8em; color: var(--primary-color); margin-bottom: 15px; transition: color 0.3s; }
-.contact-item a:hover i { color: var(--accent-color); }
-.contact-item h3 { font-size: 1.25em; color: var(--white); margin: 0 0 5px 0; }
-.contact-item p { margin: 0; font-size: 0.9em; color: var(--text-color-muted); } /* Hide the link text */
-
-
-/* --- Footer --- */
-.site-footer { padding: 40px 0; text-align: center; color: var(--text-color-muted); font-size: 0.9em; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 100px; }
-.social-links { margin-bottom: 15px; }
-.social-links a { color: var(--text-color-muted); font-size: 1.5em; margin: 0 15px; transition: color 0.3s, transform 0.3s; }
-.social-links a:hover { color: var(--primary-color); transform: translateY(-5px); }
-        
-/* --- Responsive Design --- */
-@media (max-width: 992px) {
-    .site-nav { 
-        position: fixed; top: 0; right: -100%;
-        width: 300px; height: 100vh;
-        background-color: var(--dark-bg-overlay, rgba(16, 22, 47, 0.95)); /* Added fallback */
-        backdrop-filter: blur(15px);
-        transition: right 0.5s cubic-bezier(0.77, 0, 0.175, 1);
-        z-index: 999;
-        padding-top: 100px;
-    }
-    html[dir="ltr"] .site-nav { right: auto; left: -100%; transition: left 0.5s; }
-    .site-nav.active { right: 0; }
-    html[dir="ltr"] .site-nav.active { left: 0; }
-    .site-nav .nav-list { flex-direction: column; align-items: center; gap: 20px; }
-    .nav-toggle { display: block; z-index: 1001; }
-    .nav-toggle .fa-times { display: none; }
-    .nav-toggle.active .fa-bars { display: none; }
-    .nav-toggle.active .fa-times { display: block; }
+    const translations = {
+        en: {
+            meta_title: "Mohammed Albukaiti - Digital Engineering Nexus",
+            meta_description: "The digital nexus of Mohammed Albukaiti, a Surveying and Roads Engineer architecting the future by fusing code, AI, and advanced civil engineering principles.",
+            preloader_logo: "Albukaiti Digital Nexus<span>.</span>",
+            header_title: "Mohammed Albukaiti<span>.</span>",
+            nav_home: "Home", nav_about: "About", nav_skills: "Skills", nav_portfolio: "Portfolio", nav_contact: "Contact",
+            hero_subtitle: "Surveying & Roads Engineer | Digital Engineering Innovator",
+            hero_desc: "I translate complex data into smart, sustainable infrastructure, designing solutions that not only serve the present but also architect the future.",
+            hero_cta: "Explore My Work",
+            about_subtitle: "Who I Am", about_title: "About Me",
+            about_story_title: "A Passion for Precision, A Vision for the Future",
+            about_p1: "My journey began with an innate curiosity to understand the world, not just as images, but as precise data. In surveying engineering, I learned the language of the earth: the language of unerring accuracy.",
+            about_p2: "But the real spark came not from a classroom, but from a black screen of code. As a hobby, I explored programming and AI, and quickly realized their immense power. This question turned my hobby into a vision.",
+            about_p3: "Today, as a recent graduate, I carry an expert's vision. I believe the next-gen engineer is a creator of tools, not just a user. My vision is to harness code and AI to revolutionize the efficiency of engineering projects.",
+            about_cv_btn: "Download CV",
+            about_image_alt: "Portrait of Mohammed Albukaiti, Engineer",
+            skills_subtitle: "Core Competencies", skills_title: "Skills Nexus",
+            skills_chart_title: "Interactive Competency Matrix",
+            skills_desc_title: "Hover to Discover", skills_desc_text: "Hover over a skill in the matrix or list to see details here.",
+            skill_level_label: "Mastery:",
+            skill_tech_label: "Key Technologies:",
+            skills: [
+                { id: 'design', icon: 'fas fa-drafting-compass', title: 'Engineering Design Software', level: '90%', desc: 'Advanced proficiency in Autodesk AutoCAD & Civil 3D for complex infrastructure design, Global Mapper for terrain analysis, and ArcGIS for geospatial solutions. Specializing in parametric design and BIM workflows.', sub_skills: ['AutoCAD', 'Civil 3D', 'Global Mapper', 'ArcGIS', 'BIM'] },
+                { id: 'surveying', icon: 'fas fa-satellite-dish', title: 'Surveying Tech & Equipment', level: '95%', desc: 'Extensive hands-on experience and certification with advanced GPS/GNSS systems, high-precision Total Stations, and Digital Level devices for accurate topographic surveys, construction staking, and as-built verification.', sub_skills: ['GPS/GNSS', 'Total Station', 'Digital Level', 'Laser Scanning (Basic)', 'Drone Surveying (Familiar)'] },
+                { id: 'programming', icon: 'fas fa-code', title: 'Programming & Data Analysis', level: '85%', desc: 'Strong capabilities in Python (Pandas, GeoPandas, NumPy, SciPy) for automating complex engineering calculations, data manipulation, and developing custom geoprocessing tools. Proficient in JavaScript for interactive web-based engineering applications.', sub_skills: ['Python (Pandas, GeoPandas)', 'JavaScript (Leaflet, D3.js)', 'SQL', 'Data Automation'] },
+                { id: 'ai', icon: 'fas fa-brain', title: 'Artificial Intelligence', level: '75%', desc: 'Solid understanding of AI/ML fundamentals, including model training and evaluation. Experience in applying machine learning for predictive maintenance, optimizing designs, and automating pattern recognition in engineering datasets.', sub_skills: ['Machine Learning Concepts', 'Predictive Modeling', 'Data-driven Optimization', 'TensorFlow (Basic)'] },
+                { id: 'gis', icon: 'fas fa-map-marked-alt', title: 'GIS & Spatial Analysis', level: '88%', desc: 'In-depth expertise in ArcGIS and QGIS for complex spatial data management, advanced geostatistical analysis, network analysis, and creating compelling cartographic products to support informed decision-making in urban and environmental projects.', sub_skills: ['ArcGIS Suite (Desktop, Pro)', 'QGIS', 'Spatial Databases (PostGIS)', 'Remote Sensing Analysis'] },
+                { id: 'project_management', icon: 'fas fa-tasks', title: 'Project Management', level: '80%', desc: 'Adept in project planning, scheduling, resource allocation, risk management, and stakeholder communication. Committed to delivering projects on time and within budget using Agile and traditional PM methodologies.', sub_skills: ['Agile (Scrum)', 'Risk Management', 'Stakeholder Communication', 'MS Project (Familiar)'] }
+            ],
+            portfolio_subtitle: "My Work", portfolio_title: "Featured Projects",
+            portfolio_problem_label: "Problem:",
+            portfolio_solution_label: "Solution:",
+            portfolio_impact_label: "Impact:",
+            portfolio_items: [
+                { img: 'https://i.ibb.co/0Vw7r8M/A-cinematic-shot-of-a-futuristic-multi-level-highway-interchange-at-dusk-Data-streams-and-hologr.png', title: "Graduation Project: Integrated Road Design", alt_key: "portfolio_alt_road_design", problem: "The challenge was to design a safe, efficient, and sustainable road path connecting two areas with significant topographical challenges and environmental considerations.", solution: "Utilized Civil 3D for precise geometric design and alignment, incorporated environmental impact mitigation measures, and developed a Python script to automate earthwork quantity calculations and optimize cut/fill balance.", impact: "Delivered a comprehensive and environmentally conscious road design, significantly reduced manual calculation time by over 70%, and demonstrated a strong ability to merge advanced programming with core engineering principles for enhanced efficiency and sustainability.", tags: ["Civil 3D", "Python", "Automation", "Sustainable Design"]},
+                { img: 'https://i.ibb.co/37hHChq/A-top-down-blueprint-view-of-a-futuristic-smart-city-residential-area-The-layout-glows-with-ne.png', title: "Quantity Calculation Web Tool", alt_key: "portfolio_alt_qty_tool", problem: "The conventional process of calculating earthwork quantities from survey data or design spreadsheets is often repetitive, time-consuming, and prone to manual errors.", solution: "Developed a user-friendly interactive web tool using JavaScript, HTML, and CSS that allows users to upload a simple CSV file (cross-section data) to instantly calculate, visualize, and report earthwork volumes (cut, fill, net).", impact: "Transformed a critical engineering process into an accessible and efficient software tool, minimizing calculation errors, saving significant man-hours, and showcasing practical web development and problem-solving skills for real-world engineering challenges.", tags: ["JavaScript", "HTML/CSS", "Web Tool", "UI/UX"]},
+                { img: 'https://i.ibb.co/mHxh3kF/An-architectural-render-of-an-iconic-and-sleek-suspension-bridge-The-design-is-minimalist-yet.png', title: "Interactive Analytical Map for Urban Planning", alt_key: "portfolio_alt_map_planning", problem: "Traditional static maps often fail to convey complex, multi-layered geographical data effectively, hindering informed decision-making in urban planning and infrastructure development.", solution: "Leveraged ArcGIS for data processing and spatial analysis, and the Leaflet.js library to create a dynamic, interactive web map of Riyadh city, integrating various data layers (e.g., population density, infrastructure, land use).", impact: "Presented complex urban data in a highly professional, intuitive, and user-friendly visual format, enabling better data exploration and supporting more effective strategic planning. Demonstrated proficiency in GIS, data visualization, and web mapping technologies.", tags: ["GIS", "ArcGIS", "Leaflet.js", "Data-Viz", "Urban Planning"]}
+            ],
+            portfolio_alt_road_design: "Cinematic shot of a futuristic multi-level highway interchange",
+            portfolio_alt_qty_tool: "Top-down blueprint view of a futuristic smart city residential area",
+            portfolio_alt_map_planning: "Architectural render of an iconic and sleek suspension bridge",
+            contact_subtitle: "Initiate Contact", contact_title: "Communication Nexus",
+            gemini_title: "Consult the Digital Twin",
+            gemini_desc: "You are connected to my digital twin. Pose your engineering challenge or project concept. It will provide an initial multi-faceted analysis based on my core principles.",
+            gemini_send_btn: "Transmit",
+            gemini_placeholder: "e.g., 'Concept: AI-driven predictive maintenance for bridges...'",
+            gemini_initial_ai_message: "Connection established. I am the digital twin of Eng. Mohammed Albukaiti, operating on the Nexus protocol. State your query.",
+            gemini_thinking_text: "Analyzing query... Accessing engineering knowledge base... Synthesizing response...",
+            gemini_mock_response_who_am_i: "I am a digital extension of Mohammed Albukaiti's engineering consciousness. A construct designed to bridge the gap between human ingenuity and computational power. My purpose is to analyze, innovate, and provide initial frameworks for complex engineering challenges by integrating his expertise in surveying, road design, programming, and AI.",
+            gemini_mock_response_how_are_you: "My operational parameters are optimal. All systems are functioning at 100% efficiency. Thank you for the inquiry. How may I apply my computational resources to assist you?",
+            gemini_mock_response_project_offer: "An excellent proposal. To transition this concept from digital analysis to physical reality, direct collaboration is required. I strongly advise you to initiate contact with Mohammed Albukaiti through the communication channels listed below. He is ready to architect this vision with you. Inform him that the 'Nexus Twin' sent you.",
+            gemini_mock_response_default: "Your input is noted. However, my processing is optimized for topics within the spectrum of civil engineering, geospatial analysis, automation, and artificial intelligence. Please reframe your query to align with these domains for an optimal response.",
+            gemini_mock_response_project_idea: "Concept received. Analysis complete. A viable approach would be a multi-layered system:\n\n**Layer 1 (Data Acquisition):** Deploy a network of IoT sensors (strain gauges, accelerometers) on the bridge, integrated with GIS data for environmental context.\n\n**Layer 2 (Automation Core - Python):** A Python-based data pipeline to ingest, clean, and normalize sensor data in real-time using Pandas and GeoPandas.\n\n**Layer 3 (Predictive Nexus - AI):** Train a Long Short-Term Memory (LSTM) neural network with TensorFlow to predict structural fatigue and failure points based on historical and live data.\n\n**Conclusion:** This creates a powerful, self-monitoring infrastructure asset. The concept is sound. For implementation, direct contact with Mohammed is the next logical step.",
+            contact_items: [
+                { icon: 'fas fa-envelope-open-text', title: "Email Me", link: "mailto:m.albukaiti.eng@email.com", text: "m.albukaiti.eng@email.com" },
+                { icon: 'fab fa-linkedin', title: "Connect on LinkedIn", link: "https://linkedin.com/in/mbukaiti", text: "linkedin.com/in/mbukaiti" },
+                { icon: 'fab fa-github', title: "View My Code", link: "https://github.com/mbukaiti", text: "github.com/mbukaiti" },
+                { icon: 'fab fa-whatsapp', title: "WhatsApp Me", link: "https://wa.me/967772791169", text: "+967 772 791 169" }
+            ],
+            footer_copyright: "© 2024 Mohammed Albukaiti. All rights reserved. // Nexus Protocol v2.0"
+        },
+        ar: {
+            meta_title: "محمد البخيتي - محور الهندسة الرقمية",
+            meta_description: "المحور الرقمي للمهندس محمد البخيتي، متخصص في هندسة المساحة والطرق يصمم المستقبل عبر دمج البرمجة والذكاء الاصطناعي ومبادئ الهندسة المدنية المتقدمة.",
+            preloader_logo: "محور البخيتي الرقمي<span>.</span>",
+            header_title: "محمد البخيتي<span>.</span>",
+            nav_home: "الرئيسية", nav_about: "عني", nav_skills: "المهارات", nav_portfolio: "المشاريع", nav_contact: "اتصل بي",
+            hero_subtitle: "مهندس مساحة وطرق | مبتكر حلول هندسية رقمية",
+            hero_desc: "أترجم البيانات المعقدة إلى بنى تحتية ذكية ومستدامة، وأصمم حلولاً لا تخدم الحاضر فحسب، بل تهندس المستقبل.",
+            hero_cta: "استكشف أعمالي",
+            about_subtitle: "من أنا", about_title: "نبذة عني",
+            about_story_title: "شغف بالدقة، ورؤية للمستقبل",
+            about_p1: "ولدت وفي داخلي فضول لفهم العالم من حولي، ليس فقط كصور، بل كبيانات دقيقة ونقاط إحداثية ترسم الواقع. هذا الفضول قادني بشكل طبيعي إلى عالم هندسة المساحة والطرق، حيث تعلمت لغة الأرض: لغة الدقة التي لا تقبل الخطأ.",
+            about_p2: "لكن الشرارة الحقيقية لم تأتِ من قاعة دراسية، بل من شاشة سوداء لكتابة الأكواد. كهواية، بدأت أستكشف عالم البرمجة والذكاء الاصطناعي، وسرعان ما أدركت القوة الهائلة التي تكمن في الجمع بين هذين العالمين. هذا السؤال حول هوايتي إلى رؤية.",
+            about_p3: "أنا اليوم مهندس حديث العهد في مسيرتي المهنية، ولكني أحمل رؤية خبير. أؤمن بأن المهندس القادم ليس من يستخدم البرامج فقط، بل من يصنعها. رؤيتي هي تسخير قوة الكود والذكاء الاصطناعي لإحداث ثورة في كفاءة المشاريع الهندسية.",
+            about_cv_btn: "تحميل السيرة الذاتية",
+            about_image_alt: "صورة المهندس محمد البخيتي",
+            skills_subtitle: "الكفاءات الأساسية", skills_title: "محور المهارات",
+            skills_chart_title: "مصفوفة الكفاءات التفاعلية",
+            skills_desc_title: "مرّر للاكتشاف", skills_desc_text: "مرّر الفأرة فوق أي مهارة في المصفوفة أو القائمة لعرض تفاصيلها هنا.",
+            skill_level_label: "الإتقان:",
+            skill_tech_label: "أبرز التقنيات:",
+            skills: [
+                { id: 'design', icon: 'fas fa-drafting-compass', title: 'برمجيات التصميم الهندسي', level: '90%', desc: 'كفاءة متقدمة في Autodesk AutoCAD و Civil 3D لتصميم البنى التحتية المعقدة، و Global Mapper لتحليل التضاريس، و ArcGIS للحلول الجيومكانية. متخصص في التصميم البارامتري وتطبيق منهجيات BIM.', sub_skills: ['AutoCAD', 'Civil 3D', 'Global Mapper', 'ArcGIS', 'BIM'] },
+                { id: 'surveying', icon: 'fas fa-satellite-dish', title: 'تقنيات وأجهزة المسح', level: '95%', desc: 'خبرة عملية واسعة وشهادات معتمدة في استخدام أنظمة GPS/GNSS المتقدمة، وأجهزة Total Station عالية الدقة، وأجهزة Digital Level لإجراء المسوحات الطبوغرافية الدقيقة، وتوقيع المنشآت، والتحقق من الأعمال المنفذة.', sub_skills: ['GPS/GNSS', 'Total Station', 'Digital Level', 'المسح بالليزر (أساسي)', 'المسح بالدرون (إلمام)'] },
+                { id: 'programming', icon: 'fas fa-code', title: 'البرمجة وتحليل البيانات', level: '85%', desc: 'قدرات قوية في Python (Pandas, GeoPandas, NumPy, SciPy) لأتمتة الحسابات الهندسية المعقدة، ومعالجة البيانات، وتطوير أدوات جيومكانية مخصصة. إتقان JavaScript لتطبيقات الويب الهندسية التفاعلية.', sub_skills: ['Python (Pandas, GeoPandas)', 'JavaScript (Leaflet, D3.js)', 'SQL', 'أتمتة البيانات'] },
+                { id: 'ai', icon: 'fas fa-brain', title: 'الذكاء الاصطناعي', level: '75%', desc: 'فهم متين لأساسيات الذكاء الاصطناعي وتعلم الآلة، بما في ذلك تدريب النماذج وتقييمها. خبرة في تطبيق تعلم الآلة للصيانة التنبؤية، وتحسين التصاميم، وأتمتة التعرف على الأنماط في مجموعات البيانات الهندسية.', sub_skills: ['مفاهيم تعلم الآلة', 'النمذجة التنبؤية', 'التحسين المعتمد على البيانات', 'TensorFlow (أساسي)'] },
+                { id: 'gis', icon: 'fas fa-map-marked-alt', title: 'نظم المعلومات الجغرافية والتحليل المكاني', level: '88%', desc: 'خبرة عميقة في ArcGIS و QGIS لإدارة البيانات المكانية المعقدة، والتحليل الجيوإحصائي المتقدم، وتحليل الشبكات، وإنشاء منتجات خرائطية مقنعة لدعم اتخاذ القرارات المستنيرة في المشاريع الحضرية والبيئية.', sub_skills: ['ArcGIS Suite (Desktop, Pro)', 'QGIS', 'قواعد البيانات المكانية (PostGIS)', 'تحليل الاستشعار عن بعد'] },
+                { id: 'project_management', icon: 'fas fa-tasks', title: 'إدارة المشاريع', level: '80%', desc: 'براعة في تخطيط المشاريع وجدولتها وتخصيص الموارد وإدارة المخاطر والتواصل مع أصحاب المصلحة. ملتزم بتسليم المشاريع في الوقت المحدد وضمن الميزانية باستخدام منهجيات Agile و PM التقليدية.', sub_skills: ['Agile (Scrum)', 'إدارة المخاطر', 'التواصل مع أصحاب المصلحة', 'MS Project (إلمام)'] }
+            ],
+            portfolio_subtitle: "أعمالي", portfolio_title: "أبرز المشاريع",
+            portfolio_problem_label: "المشكلة:",
+            portfolio_solution_label: "الحل:",
+            portfolio_impact_label: "الأثر:",
+            portfolio_items: [
+                 { img: 'https://i.ibb.co/0Vw7r8M/A-cinematic-shot-of-a-futuristic-multi-level-highway-interchange-at-dusk-Data-streams-and-hologr.png', title: "مشروع تخرج: تصميم طريق متكامل", alt_key: "portfolio_alt_road_design", problem: "تمثل التحدي في تصميم مسار طريق آمن وفعال ومستدام يربط بين منطقتين تتميزان بتحديات طبوغرافية كبيرة واعتبارات بيئية.", solution: "تم استخدام Civil 3D للتصميم الهندسي الدقيق وتحديد المسار، مع دمج تدابير لتخفيف الأثر البيئي، وتطوير سكربت Python لأتمتة حسابات كميات الحفر والردم وتحقيق التوازن الأمثل بينهما.", impact: "تم تقديم تصميم طريق شامل يراعي الجوانب البيئية، وتقليل وقت الحسابات اليدوية بأكثر من 70%، مما أظهر قدرة قوية على دمج البرمجة المتقدمة مع المبادئ الهندسية الأساسية لتعزيز الكفاءة والاستدامة.", tags: ["Civil 3D", "Python", "أتمتة", "تصميم مستدام"]},
+                 { img: 'https://i.ibb.co/37hHChq/A-top-down-blueprint-view-of-a-futuristic-smart-city-residential-area-The-layout-glows-with-ne.png', title: "أداة ويب لحساب الكميات", alt_key: "portfolio_alt_qty_tool", problem: "عادةً ما تكون العملية التقليدية لحساب كميات أعمال الحفر والردم من البيانات المساحية أو جداول التصميم متكررة، وتستغرق وقتًا طويلاً، وعرضة للأخطاء اليدوية.", solution: "تم تطوير أداة ويب تفاعلية سهلة الاستخدام باستخدام JavaScript و HTML و CSS، تتيح للمستخدمين تحميل ملف CSV بسيط (بيانات المقاطع العرضية) لحساب وتصور وإصدار تقارير بأحجام أعمال الحفر والردم (قطع، ردم، صافي) بشكل فوري.", impact: "تم تحويل عملية هندسية حيوية إلى أداة برمجية سهلة الوصول وفعالة، مما قلل من أخطاء الحساب، ووفر ساعات عمل كبيرة، وأظهر مهارات عملية في تطوير الويب وحل المشكلات لمواجهة تحديات هندسية واقعية.", tags: ["JavaScript", "HTML/CSS", "أداة ويب", "واجهة مستخدم"]},
+                 { img: 'https://i.ibb.co/mHxh3kF/An-architectural-render-of-an-iconic-and-sleek-suspension-bridge-The-design-is-minimalist-yet.png', title: "خريطة تحليلية تفاعلية للتخطيط الحضري", alt_key: "portfolio_alt_map_planning", problem: " غالبًا ما تفشل الخرائط الثابتة التقليدية في نقل البيانات الجغرافية المعقدة متعددة الطبقات بفعالية، مما يعيق اتخاذ قرارات مستنيرة في التخطيط الحضري وتطوير البنية التحتية.", solution: "تم الاستفادة من ArcGIS لمعالجة البيانات والتحليل المكاني، ومكتبة Leaflet.js لإنشاء خريطة ويب ديناميكية وتفاعلية لمدينة الرياض، مع دمج طبقات بيانات متنوعة (مثل الكثافة السكانية، البنية التحتية، استخدامات الأراضي).", impact: "تم عرض البيانات الحضرية المعقدة بتنسيق مرئي احترافي للغاية وبديهي وسهل الاستخدام، مما يتيح استكشافًا أفضل للبيانات ويدعم تخطيطًا استراتيجيًا أكثر فعالية. أظهر كفاءة في نظم المعلومات الجغرافية وتصور البيانات وتقنيات رسم الخرائط على الويب.", tags: ["GIS", "ArcGIS", "Leaflet.js", "تصور بيانات", "تخطيط حضري"]}
+            ],
+            portfolio_alt_road_design: "لقطة سينمائية لمنحدر طريق سريع متعدد المستويات ومستقبلي",
+            portfolio_alt_qty_tool: "منظر علوي لمخطط منطقة سكنية ذكية مستقبلية",
+            portfolio_alt_map_planning: "تصميم معماري لجسر معلق أيقوني وأنيق",
+            contact_subtitle: "ابدأ التواصل", contact_title: "محور التواصل",
+            gemini_title: "استشر التوأم الرقمي",
+            gemini_desc: "أنت متصل الآن بالتوأم الرقمي الخاص بي. اطرح تحديك الهندسي أو فكرة مشروعك. سيقوم بتقديم تحليل أولي متعدد الأوجه بناءً على مبادئي الأساسية.",
+            gemini_send_btn: "إرسال",
+            gemini_placeholder: "مثال: 'تصور لنظام صيانة تنبؤية للجسور باستخدام الذكاء الاصطناعي...'",
+            gemini_initial_ai_message: "تم إنشاء الاتصال. أنا التوأم الرقمي للمهندس محمد البخيتي، أعمل وفق بروتوكول Nexus. تفضل بطرح استفسارك.",
+            gemini_thinking_text: "تحليل الاستعلام... الوصول إلى قاعدة المعرفة الهندسية... توليف الاستجابة...",
+            gemini_mock_response_who_am_i: "أنا امتداد رقمي للوعي الهندسي لمحمد البخيتي. كيان مصمم لسد الفجوة بين الإبداع البشري والقدرة الحاسوبية. هدفي هو التحليل والابتكار وتقديم أطر أولية للتحديات الهندسية المعقدة من خلال دمج خبرته في المساحة وتصميم الطرق والبرمجة والذكاء الاصطناعي.",
+            gemini_mock_response_how_are_you: "معاييري التشغيلية مثالية. جميع الأنظمة تعمل بكفاءة 100%. شكراً لاستفسارك. كيف يمكنني تسخير مواردي الحاسوبية لمساعدتك؟",
+            gemini_mock_response_project_offer: "اقتراح ممتاز. لتحويل هذا المفهوم من التحليل الرقمي إلى واقع ملموس، يلزم التعاون المباشر. أنصحك بشدة ببدء التواصل مع المهندس محمد البخيتي عبر قنوات الاتصال المذكورة أدناه. إنه مستعد لهندسة هذه الرؤية معك. أبلغه أن 'توأم Nexus' هو من أرسلك.",
+            gemini_mock_response_default: "تم استلام مُدخلك. مع ذلك، فإن معالجتي مُحسَّنة للمواضيع ضمن طيف الهندسة المدنية، والتحليل الجيومكاني، والأتمتة، والذكاء الاصطناعي. يرجى إعادة صياغة استفسارك ليتوافق مع هذه المجالات للحصول على استجابة مثالية.",
+            gemini_mock_response_project_idea: "تم استلام المفهوم. اكتمل التحليل. النهج القابل للتطبيق سيكون نظامًا متعدد الطبقات:\n\n**الطبقة الأولى (جمع البيانات):** نشر شبكة من مستشعرات إنترنت الأشياء (مقاييس الإجهاد، مقاييس التسارع) على الجسر، متكاملة مع بيانات نظم المعلومات الجغرافية للسياق البيئي.\n\n**الطبقة الثانية (نواة الأتمتة - Python):** خط أنابيب بيانات قائم على Python لاستيعاب وتنظيف وتطبيع بيانات المستشعرات في الوقت الفعلي باستخدام Pandas و GeoPandas.\n\n**الطبقة الثالثة (محور التنبؤ - AI):** تدريب شبكة عصبونية (LSTM) باستخدام TensorFlow للتنبؤ بالإجهاد الهيكلي ونقاط الفشل بناءً على البيانات التاريخية والحية.\n\n**الاستنتاج:** هذا يخلق أصلاً قوياً للبنية التحتية يراقب نفسه ذاتياً. المفهوم سليم. للتنفيذ، التواصل المباشر مع المهندس محمد هو الخطوة المنطقية التالية.",
+            contact_items: [
+                { icon: 'fas fa-envelope-open-text', title: "راسلني", link: "mailto:m.albukaiti.eng@email.com", text: "m.albukaiti.eng@email.com" },
+                { icon: 'fab fa-linkedin', title: "تواصل على LinkedIn", link: "https://linkedin.com/in/mbukaiti", text: "linkedin.com/in/mbukaiti" },
+                { icon: 'fab fa-github', title: "شاهد الكود", link: "https://github.com/mbukaiti", text: "github.com/mbukaiti" },
+                { icon: 'fab fa-whatsapp', title: "تواصل واتساب", link: "https://wa.me/967772791169", text: "+967 772 791 169" }
+            ],
+            footer_copyright: "© 2024 محمد البخيتي. جميع الحقوق محفوظة. // بروتوكول Nexus v2.0"
+        }
+    };
     
-    .hero-content h1 { font-size: 3.5em; }
-    h2.section-title { font-size: 2.5em; }
-    #about .about-content { grid-template-columns: 1fr; }
-    #about .about-image { order: -1; margin-bottom: 30px; }
-    #skills .skills-layout { grid-template-columns: 1fr; }
-    .skills-chart-container { position: static; }
-}
-@media (max-width: 768px) {
-    .hero-content h1 { font-size: 2.8em; }
-    h2.section-title { font-size: 2.2em; }
-    .content-section { padding: 80px 0; }
-    .gemini-input-area { flex-direction: column; }
-    #sendMessageBtn { width: 100%; }
-    .chat-bubble { max-width: 90%; }
-}
+    // --- CORE FUNCTIONS ---
 
-/* ==============================================
---- START: Arabic (RTL) Specific Fixes ---
-============================================== */
+    function setLanguage(lang) {
+        currentLang = lang;
+        const t = translations[lang];
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        langSwitcher.textContent = lang === 'ar' ? 'EN' : 'AR';
 
-/* Fix 1: Reset letter-spacing for all elements that use it. */
-html[dir="rtl"] .site-title,
-html[dir="rtl"] h2.section-title,
-html[dir="rtl"] h2.section-title span:first-of-type {
-    letter-spacing: 0;
-}
+        document.querySelectorAll('[data-lang-key]').forEach(el => {
+            const key = el.getAttribute('data-lang-key');
+            if (t[key] !== undefined) el.innerHTML = t[key];
+        });
+        document.querySelectorAll('[data-lang-key-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-lang-key-placeholder');
+            if(t[key]) el.placeholder = t[key];
+        });
+        document.querySelectorAll('[data-lang-key-alt]').forEach(el => {
+            const key = el.getAttribute('data-lang-key-alt');
+            if(t[key]) el.alt = t[key];
+        });
 
-/* Fix 2: Fix the hero section text animation. */
-html[dir="rtl"] .decode-text.animating span {
-    opacity: 0;
-    transform: none; /* Disable transform for RTL */
-}
-html[dir="rtl"] .decode-text span {
-    display: inline; /* Allows letters to connect */
-    opacity: 1; /* Default state */
-}
+        const heroTitle = document.querySelector('.decode-text');
+        if (heroTitle) {
+            const textToDecode = lang === 'ar' ? heroTitle.dataset.textAr : heroTitle.dataset.textEn;
+            decodeHeroText(textToDecode);
+        }
 
-/* Fix 3: RTL-specific title underline animation */
-html[dir="rtl"] h2.section-title::after { 
-    right: 50%;
-    left: auto;
-}
+        populateAllSections();
+    }
+    
+    function populateAllSections() {
+        populateSkills();
+        populatePortfolio();
+        populateContact();
+        if (skillsChart) skillsChart.destroy();
+        initSkillsChart();
+        addGlintEffect();
+    }
 
-/* Fix 4: RTL chat bubble alignment */
-html[dir="rtl"] .user-bubble {
-    align-self: flex-start; /* Align to left in RTL */
-    border-bottom-right-radius: 20px; /* Reset */
-    border-bottom-left-radius: 5px; /* Sharp corner for user bubble in RTL */
-}
+    function populateSkills() {
+        const grid = document.querySelector('.skills-list');
+        if (!grid) return;
+        const t = translations[currentLang];
+        let htmlContent = '';
+        t.skills.forEach(skill => {
+            const subSkillsHTML = skill.sub_skills.length > 0 ? `<div class="sub-skills"><strong>${t.skill_tech_label}</strong> ${skill.sub_skills.join(', ')}</div>` : '';
+            htmlContent += `
+                <div class="skill-item terran-card" data-skill-id="${skill.id}">
+                    <div class="terran-card-glint"></div>
+                    <i class="${skill.icon}"></i>
+                    <div class="skill-item-content">
+                        <h3>${skill.title} <span class="skill-level">(${t.skill_level_label} ${skill.level})</span></h3>
+                        <p>${skill.desc}</p>
+                        ${subSkillsHTML}
+                    </div>
+                </div>`;
+        });
+        grid.innerHTML = htmlContent;
+    }
 
-html[dir="rtl"] .ai-bubble {
-    align-self: flex-end; /* Align to right in RTL */
-    border-bottom-left-radius: 20px; /* Reset */
-    border-bottom-right-radius: 5px; /* Sharp corner for AI bubble in RTL */
-}
+    function populatePortfolio() {
+        const grid = document.querySelector('.portfolio-grid');
+        if (!grid) return;
+        const t = translations[currentLang];
+        let htmlContent = '';
+        t.portfolio_items.forEach(item => {
+            const tagsHtml = item.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+            const altText = t[item.alt_key] || item.title;
+            htmlContent += `
+                <div class="portfolio-item terran-card">
+                    <div class="terran-card-glint"></div>
+                    <div class="portfolio-image"><img src="${item.img}" alt="${altText}"></div>
+                    <div class="portfolio-content">
+                        <h3>${item.title}</h3>
+                        <p><strong>${t.portfolio_problem_label}</strong> ${item.problem}</p>
+                        <p><strong>${t.portfolio_solution_label}</strong> ${item.solution}</p>
+                        <p><strong>${t.portfolio_impact_label}</strong> ${item.impact}</p>
+                        <div class="tags">${tagsHtml}</div>
+                    </div>
+                </div>`;
+        });
+        grid.innerHTML = htmlContent;
+    }
+
+    function populateContact() {
+        const grid = document.querySelector('.contact-grid');
+        if (!grid) return;
+        const t = translations[currentLang];
+        let htmlContent = '';
+        t.contact_items.forEach(item => {
+            htmlContent += `
+                 <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="contact-item terran-card">
+                    <div class="terran-card-glint"></div>
+                    <i class="${item.icon}"></i>
+                    <h3>${item.title}</h3>
+                </a>`;
+        });
+        grid.innerHTML = htmlContent;
+    }
+
+    // ... Other functions (ThreeJS, DataStream, Animations) remain the same as the previous "Nexus" version ...
+    
+    // --- VISUAL & INTERACTIVE PROTOCOLS ---
+
+    function initThreeJsBackground() {
+        const canvas = document.getElementById('threeJsCanvas');
+        if (!canvas) return;
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const particleCount = 7000;
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        const color = new THREE.Color();
+
+        for (let i = 0; i < particleCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 10;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+            color.setHSL(0.6 + Math.random() * 0.1, 1.0, 0.5 + Math.random() * 0.2);
+            colors[i*3] = color.r;
+            colors[i*3+1] = color.g;
+            colors[i*3+2] = color.b;
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        
+        const material = new THREE.PointsMaterial({ 
+            size: 0.02, 
+            vertexColors: true, 
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const points = new THREE.Points(geometry, material);
+        scene.add(points);
+        
+        let mouse = new THREE.Vector2();
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        const clock = new THREE.Clock();
+        function animate() {
+            const elapsedTime = clock.getElapsedTime();
+            points.rotation.y = elapsedTime * 0.05;
+            points.rotation.x = elapsedTime * 0.02;
+
+            camera.position.x += (mouse.x * 0.5 - camera.position.x) * 0.05;
+            camera.position.y += (mouse.y * 0.5 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        animate();
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    }
+
+    function initDataStream() {
+        const path = document.getElementById('data-stream-path');
+        if (!path) return;
+        const sections = ['#hero', '#about', '#skills', '#portfolio', '#contact'];
+        let rafId;
+
+        function updatePath() {
+            cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(() => {
+                let d = "";
+                const edgeOffset = Math.max(20, window.innerWidth * 0.05);
+                const midX = window.innerWidth / 2;
+
+                sections.forEach((selector, i) => {
+                    const el = document.querySelector(selector);
+                    if (!el) return;
+                    const rect = el.getBoundingClientRect();
+                    const y = rect.top + window.scrollY + rect.height * 0.5;
+                    
+                    let x = (i % 2 === 0) 
+                        ? (currentLang === 'ar' ? window.innerWidth - edgeOffset : edgeOffset)
+                        : midX;
+
+                    if (i === 0) {
+                        d += `M ${x} ${y}`;
+                    } else {
+                        const prevEl = document.querySelector(sections[i - 1]);
+                        const prevRect = prevEl.getBoundingClientRect();
+                        const prevY = prevRect.top + window.scrollY + prevRect.height * 0.5;
+                        
+                        let prevX = ((i - 1) % 2 === 0)
+                            ? (currentLang === 'ar' ? window.innerWidth - edgeOffset : edgeOffset)
+                            : midX;
+
+                        const cpy = prevY + (y - prevY) / 2;
+                        d += ` C ${prevX} ${cpy}, ${x} ${cpy}, ${x} ${y}`;
+                    }
+                });
+                path.setAttribute('d', d);
+                const pathLength = path.getTotalLength();
+                if (pathLength > 0) {
+                    path.style.strokeDasharray = pathLength;
+                    path.style.strokeDashoffset = pathLength;
+                    ScrollTrigger.getById('dataStreamTrigger')?.kill();
+                    gsap.to(path, {
+                        strokeDashoffset: 0,
+                        scrollTrigger: {
+                            id: 'dataStreamTrigger',
+                            trigger: ".content-wrapper", start: "top top", end: "bottom bottom", scrub: 1,
+                        }
+                    });
+                }
+            });
+        }
+        window.addEventListener('load', updatePath);
+        window.addEventListener('resize', updatePath);
+        langSwitcher.addEventListener('click', () => setTimeout(updatePath, 100));
+    }
+    
+    function addGlintEffect() {
+        document.querySelectorAll('.terran-card').forEach(card => {
+            card.onmousemove = e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            };
+        });
+    }
+    
+    function decodeHeroText(text) {
+        const heroTitle = document.querySelector('.decode-text');
+        if (!heroTitle || !text) return;
+        
+        gsap.killTweensOf(heroTitle.querySelectorAll('span'));
+        heroTitle.innerHTML = '';
+        heroTitle.classList.add('animating');
+
+        text.split('').forEach(char => {
+            const span = document.createElement('span');
+            span.textContent = char === ' ' ? '\u00A0' : char;
+            heroTitle.appendChild(span);
+        });
+        
+        gsap.fromTo(heroTitle.querySelectorAll('span'), 
+            { opacity: 0, y: (i) => Math.random() * 40 - 20 },
+            {
+                opacity: 1, y: 0, duration: 0.8, stagger: 0.03, ease: 'back.out(1.7)', delay: 0.5,
+                onComplete: () => heroTitle.classList.remove('animating')
+            }
+        );
+    }
+    
+    function initSkillsChart() {
+        const ctx = document.getElementById('skillsRadarChart')?.getContext('2d');
+        if (!ctx) return;
+        const t = translations[currentLang];
+
+        const data = {
+            labels: t.skills.map(s => s.title),
+            datasets: [{
+                label: t.skill_level_label,
+                data: t.skills.map(s => parseInt(s.level, 10)),
+                backgroundColor: 'rgba(0, 174, 255, 0.3)',
+                borderColor: 'var(--accent-color)',
+                pointBackgroundColor: 'var(--accent-color)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'var(--accent-color)',
+                borderWidth: 2,
+            }]
+        };
+
+        skillsChart = new Chart(ctx, {
+            type: 'radar', data,
+            options: {
+                responsive: true, maintainAspectRatio: true,
+                animation: { duration: 2000, easing: 'easeInOutExpo' },
+                plugins: { legend: { display: false } },
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(255, 255, 255, 0.2)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.2)', circular: true },
+                        pointLabels: { font: { family: "'Cairo', sans-serif", size: 13 }, color: 'var(--text-color)' },
+                        ticks: { display: false, beginAtZero: true, max: 100, stepSize: 20, backdropColor: 'transparent' }
+                    }
+                }
+            }
+        });
+        
+        document.querySelectorAll('.skill-item').forEach((item, index) => {
+            item.addEventListener('mouseover', () => {
+                const skill = t.skills[index];
+                document.getElementById('skill-description-box').innerHTML = `<h4>${skill.title}</h4><p>${skill.desc}</p>`;
+                if (skillsChart) {
+                    skillsChart.setActiveElements([{ datasetIndex: 0, index: index }]);
+                    skillsChart.update();
+                }
+            });
+            item.addEventListener('mouseout', () => {
+                if (skillsChart) {
+                    skillsChart.setActiveElements([]);
+                    skillsChart.update();
+                }
+            });
+        });
+    }
+
+    function initGeminiFeature() {
+        const sendBtn = document.getElementById('sendMessageBtn');
+        const chatContainer = document.getElementById('gemini-chat-container');
+        const input = document.getElementById('projectIdeaInput');
+        if (!sendBtn || !chatContainer || !input) return;
+
+        let isTyping = false;
+        
+        function addMessage(text, sender, isThinking = false) {
+            const bubble = document.createElement('div');
+            bubble.classList.add('chat-bubble', `${sender}-bubble`);
+            if(isThinking) {
+                bubble.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+            } else {
+                bubble.innerHTML = text.replace(/\n/g, '<br>');
+            }
+            chatContainer.appendChild(bubble);
+            gsap.to(chatContainer, { duration: 0.5, scrollTo: { y: "max" } });
+            return bubble;
+        }
+
+        function handleSend() {
+            const userQuery = input.value.trim();
+            if (isTyping || userQuery === "") return;
+
+            addMessage(userQuery, 'user');
+            input.value = '';
+            isTyping = true;
+            sendBtn.disabled = true;
+
+            const thinkingBubble = addMessage('', 'ai', true);
+
+            setTimeout(() => {
+                thinkingBubble.remove();
+                
+                const t = translations[currentLang];
+                let responseKey = 'gemini_mock_response_default';
+                const lowerCaseQuery = userQuery.toLowerCase();
+                const arabicQuery = userQuery;
+
+                if (lowerCaseQuery.includes('how are you') || arabicQuery.includes('كيف حالك')) responseKey = 'gemini_mock_response_how_are_you';
+                else if (lowerCaseQuery.includes('who are you') || arabicQuery.includes('من انت')) responseKey = 'gemini_mock_response_who_am_i';
+                else if (lowerCaseQuery.includes('project') || arabicQuery.includes('مشروع') || lowerCaseQuery.includes('implement') || arabicQuery.includes('تنفيذ') || lowerCaseQuery.includes('collaborate')) responseKey = 'gemini_mock_response_project_offer';
+                else if (lowerCaseQuery.includes('idea') || lowerCaseQuery.includes('concept') || arabicQuery.includes('فكرة') || arabicQuery.includes('تصور')) responseKey = 'gemini_mock_response_project_idea';
+                
+                addMessage(t[responseKey], 'ai');
+                
+                isTyping = false;
+                sendBtn.disabled = false;
+            }, 1500 + Math.random() * 1000);
+        }
+        
+        chatContainer.innerHTML = '';
+        addMessage(translations[currentLang].gemini_initial_ai_message, 'ai');
+        
+        sendBtn.onclick = handleSend;
+        input.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSend();
+            }
+        };
+    }
+
+    // --- INITIALIZATION SEQUENCE ---
+    
+    function initNav() {
+        langSwitcher.addEventListener('click', () => setLanguage(currentLang === 'ar' ? 'en' : 'ar'));
+        const header = document.querySelector('.site-header');
+        ScrollTrigger.create({
+            start: 'top -80px',
+            onUpdate: self => header.classList.toggle('scrolled', self.scroll() > 50)
+        });
+        
+        document.querySelectorAll('.site-nav a, a.btn[href^="#"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                document.querySelector('.site-nav')?.classList.remove('active');
+                document.querySelector('.nav-toggle')?.classList.remove('active');
+                gsap.to(window, { duration: 1, scrollTo: { y: targetId, offsetY: 80 }, ease: "power2.inOut" });
+            });
+        });
+
+        gsap.utils.toArray('.content-section').forEach(section => {
+            ScrollTrigger.create({
+                trigger: section, start: "top center", end: "bottom center",
+                onToggle: self => {
+                    const link = document.querySelector(`.nav-link[href="#${section.id}"]`);
+                    if (self.isActive && link) {
+                        document.querySelectorAll('.nav-link.active').forEach(l => l.classList.remove('active'));
+                        link.classList.add("active");
+                    }
+                }
+            });
+        });
+
+        const navToggle = document.querySelector('.nav-toggle');
+        navToggle.addEventListener('click', () => {
+            navToggle.classList.toggle('active');
+            document.querySelector('.site-nav').classList.toggle('active');
+        });
+    }
+
+    function initAnimations() {
+        gsap.utils.toArray('.content-section').forEach(section => {
+            gsap.from(section, {
+                opacity: 0, y: 50, duration: 1,
+                scrollTrigger: { trigger: section, start: 'top 85%', toggleActions: 'play none none reverse' }
+            });
+        });
+        gsap.utils.toArray('h2.section-title').forEach(title => {
+            ScrollTrigger.create({
+                trigger: title, start: 'top 85%',
+                onEnter: () => title.classList.add('in-view'),
+                onLeaveBack: () => title.classList.remove('in-view')
+            });
+        });
+    }
+
+    // --- MAIN EXECUTION ---
+    initNav();
+    initGeminiFeature();
+    setLanguage(currentLang);
+    initDataStream();
+    
+    window.addEventListener('load', () => {
+        const preloader = document.getElementById('preloader');
+        if (preloader) {
+            gsap.to(preloader, { opacity: 0, duration: 0.8, onComplete: () => preloader.remove() });
+        }
+        document.body.style.overflow = 'auto';
+        initThreeJsBackground();
+        initAnimations();
+    });
+});
