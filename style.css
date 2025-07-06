@@ -127,7 +127,7 @@ html[dir="ltr"] #skill-description-box { border-left: none; border-right: 3px so
     .site-nav { 
         position: fixed; top: 0; right: -100%;
         width: 300px; height: 100vh;
-        background-color: var(--darker-bg-overlay);
+        background-color: var(--dark-bg-overlay, rgba(16, 22, 47, 0.95)); /* Added fallback */
         backdrop-filter: blur(15px);
         transition: right 0.5s cubic-bezier(0.77, 0, 0.175, 1);
         z-index: 999;
@@ -155,4 +155,38 @@ html[dir="ltr"] #skill-description-box { border-left: none; border-right: 3px so
     .content-section { padding: 80px 0; }
     .gemini-input-area { flex-direction: column; }
     #expandVisionBtn { width: 100%; }
+}
+
+/* 
+==============================================
+--- START: Arabic (RTL) Specific Fixes ---
+==============================================
+*/
+
+/* 
+  Fix 1: Reset letter-spacing for all elements that use it.
+  This prevents Arabic letters from being disconnected.
+*/
+html[dir="rtl"] .site-title,
+html[dir="rtl"] h2.section-title,
+html[dir="rtl"] h2.section-title span:first-of-type {
+    letter-spacing: 0;
+}
+
+/* 
+  Fix 2: Fix the hero section text animation.
+  The original code wraps each letter in a <span> with `display: inline-block`,
+  which breaks Arabic letter connection. This fix changes it to `display: inline`
+  for Arabic text, allowing letters to connect properly.
+  The animation might look different, but the text will be readable.
+*/
+html[dir="rtl"] .decode-text span {
+    display: inline; /* Allows letters to connect */
+    transform: none; /* Disables the up/down animation which relies on block display */
+    opacity: 1;      /* Ensure text is visible immediately */
+}
+
+/* Optional: If animation is still desired for RTL, you can re-enable opacity animation */
+html[dir="rtl"] .decode-text.animating span {
+    opacity: 0;
 }
