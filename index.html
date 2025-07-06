@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-lang-key="meta_title">محمد البخيتي - مهندس ومبتكر رقمي</title>
+    <meta name="description" content="محفظة أعمال المهندس محمد البخيتي، متخصص في هندسة المساحة والطرق، يدمج البرمجة والذكاء الاصطناعي لتقديم حلول هندسية مبتكرة." data-lang-key="meta_description">
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Changa:wght@600;800&display=swap" rel="stylesheet"> 
@@ -71,7 +72,7 @@
                             <a href="CV.pdf" download="CV-Mohammed-Albukaiti.pdf" class="btn" style="margin-top: 20px;" data-lang-key="about_cv_btn">تحميل السيرة الذاتية</a>
                         </div>
                         <div class="about-image">
-                            <img src="https://i.ibb.co/C0f9j6k/A-professional-and-confident-portrait-of-a-male-engineer-from-the-Middle-East-in-his-30s-He-has.png" alt="صورة المهندس محمد البخيتي">
+                            <img src="https://i.ibb.co/C0f9j6k/A-professional-and-confident-portrait-of-a-male-engineer-from-the-Middle-East-in-his-30s-He-has.png" alt="صورة المهندس محمد البخيتي" data-lang-key-alt="about_image_alt">
                         </div>
                     </div>
                 </div>
@@ -82,7 +83,7 @@
                     <h2 class="section-title"><span data-lang-key="skills_subtitle">What I Do</span><span data-lang-key="skills_title">المهارات والكفاءات</span></h2>
                     <div class="skills-layout">
                         <div class="skills-list">
-                            <!-- Dynamically populated -->
+                            <!-- Dynamically populated by script.js -->
                         </div>
                         <div class="skills-chart-container">
                             <h3 data-lang-key="skills_chart_title">مخطط الكفاءات التفاعلي</h3>
@@ -100,7 +101,7 @@
                 <div class="container">
                     <h2 class="section-title"><span data-lang-key="portfolio_subtitle">My Work</span><span data-lang-key="portfolio_title">أبرز المشاريع</span></h2>
                     <div class="portfolio-grid">
-                        <!-- Dynamically populated -->
+                        <!-- Dynamically populated by script.js -->
                     </div>
                 </div>
             </section>
@@ -112,16 +113,17 @@
                         <h3 data-lang-key="gemini_title">استشر العقل الهندسي</h3>
                         <p data-lang-key="gemini_desc">هل لديك فكرة مشروع؟ صفها هنا ودع الذكاء الاصطناعي يقدم لك تصوراً أولياً مبتكراً.</p>
                         <div class="gemini-input-area">
-                            <input type="text" id="projectIdeaInput" placeholder="مثال: تصميم طريق مستدام في منطقة جبلية...">
-                            <button id="expandVisionBtn" class="btn" data-lang-key="gemini_btn">حلّل الفكرة</button>
+                            <input type="text" id="projectIdeaInput" placeholder="مثال: تصميم طريق مستدام في منطقة جبلية..." data-lang-key-placeholder="gemini_placeholder">
+                            <button id="sendMessageBtn" class="btn" data-lang-key="gemini_send_btn">إرسال</button>
                         </div>
-                        <div class="gemini-results-area">
-                            <span id="gemini-response"></span><span id="gemini-cursor"></span>
+                        <div class="chat-bubbles-container" id="gemini-chat-container">
+                            <!-- Chat bubbles will be appended here -->
+                            <div class="chat-bubble ai-bubble" data-lang-key-initial-ai-message="gemini_initial_ai_message">مرحباً! أنا التوأم الرقمي للمهندس محمد البخيتي. كيف يمكنني مساعدتك في مشروعك الهندسي اليوم؟</div>
                         </div>
                     </div>
 
                     <div class="contact-grid" style="margin-top: 80px;">
-                        <!-- Dynamically populated -->
+                        <!-- Dynamically populated by script.js -->
                     </div>
                 </div>
             </section>
